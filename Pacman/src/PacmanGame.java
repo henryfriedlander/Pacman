@@ -38,7 +38,7 @@ import javax.sound.sampled.*;
  */
 
 public class PacmanGame extends JPanel implements MouseMotionListener, MouseListener, KeyListener {
-	
+
 	int mouse_x;
 	int mouse_y;
 	int Pmouse_x;
@@ -55,7 +55,7 @@ public class PacmanGame extends JPanel implements MouseMotionListener, MouseList
 	boolean draw_spiral_next_time = false;
 	static int SQUARE_SIZE = 40;
 	static int PACMAN_SPEED = 8;
-	static int ENEMY_SPEED = 8;
+	static int ENEMY_SPEED = 5;
 	static int score = 0;
 	long timeSinceRestart;
 	
@@ -63,6 +63,7 @@ public class PacmanGame extends JPanel implements MouseMotionListener, MouseList
 	
 	Organism enemy1;
 	Organism enemy2;
+	Organism enemy3;
 	// Organism[] enemies;
 	
 	int pendingKeyCode = -1; // no pending key at the beginning
@@ -105,6 +106,7 @@ public class PacmanGame extends JPanel implements MouseMotionListener, MouseList
     	pacman = new Pacman(7*SQUARE_SIZE, 6*SQUARE_SIZE);
     	enemy1 = new Enemy(-1, -1, pacman);
     	enemy2 = new Enemy(-1, -1, pacman);
+    	enemy3 = new Enemy(-1, -1, pacman);
     	score = 0;
     	pendingKeyCode = -1;
     	timeSinceRestart = System.currentTimeMillis();
@@ -116,7 +118,7 @@ public class PacmanGame extends JPanel implements MouseMotionListener, MouseList
     	}
     }
     
-    public static void loadBoard() {
+    public static void loadBoard(String level) {
     	InputStream    fis;
     	BufferedReader br;
     	String         line;
@@ -132,7 +134,7 @@ public class PacmanGame extends JPanel implements MouseMotionListener, MouseList
 
     	try
     	{
-	    	fis = new FileInputStream("level.txt");
+	    	fis = new FileInputStream(level);
 	    	br = new BufferedReader(new InputStreamReader(fis));
 	    	
 	    	int num_rows = -1;
@@ -167,7 +169,19 @@ public class PacmanGame extends JPanel implements MouseMotionListener, MouseList
     
 	public static void main(String[] args) { 
 		
-		loadBoard();
+		String level = "level.txt";
+		if(args.length != 0) {
+			level = args[0];
+			System.out.print("Using specified level: ");
+			System.out.println(level);
+		}
+		else {
+			
+			System.out.print("Using default level: ");
+			System.out.println(level);
+		}
+		
+		loadBoard(level);
 		
 		JFrame frame = new JFrame();
 		frame.setSize(original_board[0].length * SQUARE_SIZE, original_board.length * SQUARE_SIZE+20);
@@ -293,7 +307,32 @@ public class PacmanGame extends JPanel implements MouseMotionListener, MouseList
 						(pacman.y==enemy2.y && Math.abs(pacman.x-enemy2.x)<SQUARE_SIZE)){
 						restart();
 					}
+
 				}
+
+				if (System.currentTimeMillis() - timeSinceRestart > 10000) {
+					if (enemy3.x < 0) {
+						System.out.println("Spawning enemy 3 -- time is " + System.currentTimeMillis());
+						for (int i = 0; i < board.length; i++) {
+							for (int j = 0; j < board[i].length; j++) {
+								if (board[i][j] == Things.ENEMY_SPAWNING_PLACE) {
+									enemy3.x = j * SQUARE_SIZE;
+									enemy3.y = i * SQUARE_SIZE;
+									enemy3.dir = Organism.Direction.UP;
+								}
+							}
+						}
+					} 
+					else {
+						enemy3.move(board, ENEMY_SPEED);
+					}
+					if ((pacman.x==enemy3.x && Math.abs(pacman.y-enemy3.y)<SQUARE_SIZE) || 	
+						(pacman.y==enemy3.y && Math.abs(pacman.x-enemy3.x)<SQUARE_SIZE)){
+						restart();
+					}
+
+				}
+
 			}
 		}
 		
@@ -333,6 +372,11 @@ public class PacmanGame extends JPanel implements MouseMotionListener, MouseList
 		if (enemy2.x >= 0) {
 			g.setColor(new Color(100, 200, 100));
 			g.fillRect(enemy2.x, enemy2.y, SQUARE_SIZE, SQUARE_SIZE);
+		}
+
+		if (enemy3.x >= 0) {
+			g.setColor(new Color(200, 200, 100));
+			g.fillRect(enemy3.x, enemy3.y, SQUARE_SIZE, SQUARE_SIZE);
 		}
 		
 		// Draw the pause button
