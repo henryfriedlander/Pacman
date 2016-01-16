@@ -8,7 +8,7 @@ Run with Eclipse project
 ### Quickstart without Eclipse
 
 ```
-cd src
+cd Pacman/src
 for i in *.java; do javac *.java; done
 java PacmanGame
 
