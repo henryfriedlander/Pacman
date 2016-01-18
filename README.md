@@ -9,7 +9,7 @@ Level 1
 
 ![alt text](https://github.com/henryfriedlander/Pacman/blob/master/docs/pics/pacman.JPG)
 
-Level 2 (thanks to @peteflorence)
+Level 2 (thanks to #peteflorence)
 
 ![alt text](https://raw.githubusercontent.com/peteflorence/Pacman/master/Pacman/MITpacman.png "MIT level :)")
 
